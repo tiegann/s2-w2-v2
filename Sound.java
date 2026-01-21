@@ -222,33 +222,48 @@ public class Sound {
 
     // =========================== YOUR METHODS
 
-    /*
-     * reverse the sound
-     */
+    public void swap(int index1, int index2){
+        Integer i = myData.get(index1);
+        Integer i2 = myData.get(index2);
+        myData.set(index2, i);
+        myData.set(index1, i2);
+    }
+     
     public void reverse() {
-
+       for(int i = 0; i< myData.size()/2; i++){
+        swap(i, myData.size()-i-1);
+        }
+        refresh(); 
 
     }
 
     // this throws out half the data
     public void doublePitch() {
-
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+        for (int i=0; i < myData.size()/2 ; i++) {
+            temp.add(myData.get(i*2));
+        }
+        myData = temp;
+        refresh();
     }
 
 
   
     //complete this method
     public void amplify (double amt) {
-
+        for (int i = 0; i<myData.size(); i++){
+            myData.set(i, (int)(myData.get(i)* amt));
+        }
+        refresh();
     }
 
     /*
      * Finds and returns the absolute maximum sample value in the sound data.
      * Used by normalize() to determine the scaling factor.
      */
-    private int findAbsoluteMax() {
+    //private int findAbsoluteMax() {
   
-    }
+   // }
 
     /*
      * Normalizes the audio by scaling all samples so the loudest sample
@@ -256,8 +271,14 @@ public class Sound {
      * This makes quiet sounds louder while preventing distortion.
      */
     public void normalize() {
-
-
+        int a = Math.abs(myData.get(0));
+        for(int i = 0; i<myData.size(); i++){
+            if(Math.abs(myData.get(i)) > Math.abs(a)){
+                a = Math.abs(myData.get(i));
+            }
+        }
+        double amt = 32250/(a *1.0);
+        amplify(amt); 
     }
 
 
@@ -268,14 +289,26 @@ public class Sound {
     // - replace the current value with the new value
     // - refresh!
     public void fadeIn(double seconds) {
-
-   
+        int numSamples = (int)Math.round(seconds * getSamplingRate());
+        for (int i = 0; i<numSamples && i<myData.size(); i++){
+            double scale = i*1.0/numSamples;
+            int newValue = (int)(myData.get(i)*scale);
+            myData.set(i, newValue);
+        }
+        refresh();
     }
 
 
     // Fade out over a duration in seconds
     public void fadeOut(double seconds) {
-
+        int numSamples = (int)Math.round(seconds * getSamplingRate());
+        int startFade = myData.size() - numSamples;
+        for (int i = startFade;i<myData.size(); i++){
+            double scale = (myData.size() -i)*1.0/numSamples;
+            int newValue = (int)(myData.get(i)*scale);
+            myData.set(i, newValue);
+        }
+        refresh();
     }
 
 
