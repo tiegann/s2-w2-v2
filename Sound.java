@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 
+import com.apple.laf.resources.aqua;
+
 public class Sound {
 
     private Viewer myViewer;
@@ -222,17 +224,13 @@ public class Sound {
 
     // =========================== YOUR METHODS
 
-    public void swap(int index1, int index2){
-        Integer i = myData.get(index1);
-        Integer i2 = myData.get(index2);
-        myData.set(index2, i);
-        myData.set(index1, i2);
-    }
      
     public void reverse() {
-       for(int i = 0; i< myData.size()/2; i++){
-        swap(i, myData.size()-i-1);
+        ArrayList<Integer> temp = new ArrayList<Integer>();
+        for(int i = myData.size(); i> 0; i--){
+        temp.add(myData.get(i));
         }
+        myData = temp;
         refresh(); 
 
     }
@@ -322,7 +320,15 @@ public class Sound {
         // cycle - is one complete wave 
         // sampleRate() -- getSamplingRate() - samples per second
         // You need to calculate the samplesPerCycle 
-
+        int samplesPerCycle = (int)(Math.round(getSamplingRate() / hertz));
+        for (int i = 0; i<myData.size(); i++){
+            int position = i/samplesPerCycle;
+            if (position > samplesPerCycle/2){
+                myData.set(i,maxAmplitude);
+            } else{
+                myData.set(i,-maxAmplitude);
+            }
+        }
     }
 
 
@@ -330,7 +336,12 @@ public class Sound {
     // Simple echo: single delayed tap mixed with the original
     // What is echo mathically: current value + (decay * past)
     public void echo(double delaySeconds, double decay) {
-
+        int startEchoing = (int)(getSamplingRate()*delaySeconds);
+        for(int i = startEchoing; i<myData.size(); i++){
+            int echo = (int)(myData.get((int)(i-delaySeconds)) * decay);
+            myData.set(i,echo + myData.get(i));
+        }
+        refresh();
     }
 
     private int clampSample(int value) {
